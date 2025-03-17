@@ -1,5 +1,9 @@
 # multi-phase-sbm
 
+<p align="center">
+  <img src="data/3D_dense_phase_1C.png" width="70%"></img>
+</p>
+
 ## Description
 Collection of codes for the multiphase-smoothed-boundary method and the corresponding publication "Simulation of intercalation and phase transitions in nano-porous, polycrystalline agglomerates"
 
