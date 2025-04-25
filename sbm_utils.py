@@ -187,46 +187,47 @@ class MultiPhaseSolver():
 
 # Constant factor: elementary charge divided by Boltzman constant and room temperature
 e_over_kbT = 1.602176634e-19 / (1.380649e-23*300)
+kbT_over_e = (1.380649e-23*300) / 1.602176634e-19
 
-def free_energy_log(x, A, K, c0, c1, B, factor=e_over_kbT):
+def free_energy_log(x, A, K, c0, c1, B, factor=kbT_over_e):
     """f = A * x + K * ((x-c0) * ln(x-c0) + (c1 - x) * ln(c1 - x)) + B"""
     # Avoid log of zero by adding a small epsilon
     epsilon = 1e-10
     c0_minus_x_safe = np.clip(x - c0, epsilon, None)
     c1_minus_x_safe = np.clip(c1 - x, epsilon, None)
-    return (A*x +  K*(c0_minus_x_safe * np.log(c0_minus_x_safe) + c1_minus_x_safe * np.log(c1_minus_x_safe)) + B)/factor
+    return (A*x +  K*(c0_minus_x_safe * np.log(c0_minus_x_safe) + c1_minus_x_safe * np.log(c1_minus_x_safe)) + B)*factor
 
-def chemical_potential_log(x, A, K, c0, c1, factor=e_over_kbT):
+def chemical_potential_log(x, A, K, c0, c1, factor=kbT_over_e):
     """f = A + K * (ln(x - c0) - ln(c1 - x))"""
     # Avoid log of zero by adding a small epsilon
     epsilon = 1e-10
     c0_minus_x_safe = np.clip(x - c0, epsilon, None)
     c1_minus_x_safe = np.clip(c1 - x, epsilon, None)
-    return (A + K*(np.log(c0_minus_x_safe) - np.log(c1_minus_x_safe)))/factor
+    return (A + K*(np.log(c0_minus_x_safe) - np.log(c1_minus_x_safe)))*factor
 
-def ci_of_mu_log(mu, A, K, c0, c1, factor=e_over_kbT):
+def ci_of_mu_log(mu, A, K, c0, c1, factor=kbT_over_e):
     """f = A + K * (ln(x - c0) - ln(c1 - x))"""
-    return (c0 + c1 * np.exp((mu*factor-A)/K)) / (1+np.exp((mu*factor-A)/K))
+    return (c0 + c1 * np.exp((mu/factor-A)/K)) / (1+np.exp((mu/factor-A)/K))
 
-def dci_dmu_log(mu, A, K, c0, c1, factor=e_over_kbT):
+def dci_dmu_log(mu, A, K, c0, c1, factor=kbT_over_e):
     """f = A + K * (ln(x - c0) - ln(c1 - x))"""
-    return (c1-c0) / K * np.exp((mu*factor-A)/K) / (1+np.exp((mu*factor-A)/K)) / (1+np.exp((mu*factor-A)/K))
+    return (c1-c0) / factor / K * np.exp((mu/factor-A)/K) / (1+np.exp((mu/factor-A)/K)) / (1+np.exp((mu/factor-A)/K))
 
-def free_energy_quad(x, A, K, B, factor=e_over_kbT):
+def free_energy_quad(x, A, K, B, factor=kbT_over_e):
     """f = A*x^2 + K*x + B"""
-    return (A*x*x + K*x + B)/factor
+    return (A*x*x + K*x + B)*factor
 
-def chemical_potential_quad(x, A, K, factor=e_over_kbT):
+def chemical_potential_quad(x, A, K, factor=kbT_over_e):
     """f = 2*A*x + K"""
-    return (2*A*x + K) / factor
+    return (2*A*x + K) * factor
 
-def ci_of_mu_quad(mu, A, K, factor=e_over_kbT):
+def ci_of_mu_quad(mu, A, K, factor=kbT_over_e):
     """f = (mu - K) / (2*A)"""
-    return (mu*factor - K) / (2*A)
+    return (mu/factor - K) / (2*A)
 
-def dci_dmu_quad(mu, A, K, factor=e_over_kbT):
+def dci_dmu_quad(mu, A, K, factor=kbT_over_e):
     """f = 1 / (2*A)"""
-    return factor / (2*A) * np.ones_like(mu)
+    return 1 / factor / (2*A) * np.ones_like(mu)
 
 def fit_experimental_voltage(phases, fit_type, limits, domain_limit, voltage_data, manual_bounds=None):
     # Fit functions to the data
